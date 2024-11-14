@@ -7,8 +7,11 @@ from typing import List
 
 load_dotenv()
 
-class TweetOutput(BaseModel):
-    tweets: List[str] = Field(..., description="This is a list of sentences.")
+class Tweet(BaseModel):
+    text: str = Field(..., description="This is the tweet")
+
+class Threadx(BaseModel):
+    tweets: List[str] = Field(..., description="This is a list of tweets.")
 
 #Get the Essay
 def get_essay(mail_body, api_key):
@@ -49,7 +52,7 @@ def get_essay(mail_body, api_key):
     return essay_assistant.run("Create a 200 word essay for {0}".format(parsedText),stream=False,markDown=True).content
 
 #Create a twitter thread
-def get_twitter_thread(essay, api_key):
+def get_twitter_thread(essay,source,api_key):
     twitter_thread_assistant = Agent(
             name="TwitterThreadAssistant",
             model=Together(id="meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",api_key=api_key),
@@ -59,15 +62,13 @@ def get_twitter_thread(essay, api_key):
                 """
             ),
             instructions=[
-                    "IMPORTANT: Convert the given essay into a list of 6-10 tweets thread.",
-                    "IMPORTANT: Preceed the tweet with a tweet number and each sentence length should be less than 260 characters.Do not include ** in the tweets.",
-                    "IMPORTANT: The list of tweets should be in the form of a python list and do not include the word essay in it.",
-                    "IMPORTANT: Only return the list of tweets and remove any preceding messages."
+                    "IMPORTANT: Convert the given essay into a list of 6-10 tweets thread.In the last tweet give credits to {0} for the information.".format(source),
+                    "IMPORTANT: Preceed the tweet with a tweet number and each sentence length should be less than 260 characters and do not include the word essay in it.",
             ],
-            markdown=True,
-            response_model=TweetOutput
+            response_model=Threadx
         )
-    return twitter_thread_assistant.run("Create a nice twitter thread of 6-8 tweets for this essay:{0}".format(essay),stream=False,markDown=True).content
+    thread_json = twitter_thread_assistant.run("Create a nice twitter thread of 6-8 tweets for this essay:{0}".format(essay),stream=False).content
+    return thread_json
 
 # Summarise tweet
 def get_tweet_summary(tweet, charlen, api_key):
