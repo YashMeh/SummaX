@@ -14,11 +14,11 @@ def post_tweets(client,tweets):
     try:
         prevTweetId = None
         for currentTweet in tweets:
+            #random sleep to avoid bot-behaviour
             time.sleep(random.randrange(1,10))
             if(prevTweetId != None):
                 currentTweet = client.create_tweet(text=currentTweet, in_reply_to_tweet_id=prevTweetId)
             else:
-                print("b")
                 currentTweet = client.create_tweet(text=currentTweet)
             print("Posted : {0}".format(currentTweet))    
             prevTweetId = currentTweet.data['id']
