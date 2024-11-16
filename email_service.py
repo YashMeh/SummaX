@@ -72,5 +72,3 @@ def get_latest_email(service, q):
             print("Error retrieving email ", e)
         #return the last body to ensure that only latest email body is sent back    
         return body 
-
-# print(get_latest_email(service=get_gmail_service(), q="from:yashmeh98@gmail.com newer_than:1d"))

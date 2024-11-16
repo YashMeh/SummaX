@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 import os
 import schedule
 import time
+import datetime
 
 load_dotenv()
 
@@ -37,13 +38,17 @@ def tweet_extract(source):
         print("Excpetion occured ",e)
 
 def post_summary_x(source):
+    # Post only on weekdays
+    current_day = datetime.datetime.now().strftime("%A")
+    if(current_day == 'Saturday' or current_day == 'Sunday'):
+        return
     all_tweets = tweet_extract(source)
     if (all_tweets!=None):
         x_client = get_x_client(CONSUMER_KEY,CONSUMER_SECRET,ACCESS_TOKEN,ACCESS_TOKEN_SECRET)
         post_tweets(x_client,all_tweets)
 
-#Run everyday at 18:00 IST
-schedule.every().day.at("13:10", "Europe/Amsterdam").do(post_summary_x, source="Finshots")
+# Run everyday at 18:00 IST
+schedule.every().day.at("18:00", "Asia/Calcutta").do(post_summary_x, source="Finshots")
 
 while True:
     schedule.run_pending()
